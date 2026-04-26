@@ -5,12 +5,15 @@ import (
 	"log"
 	"os"
 
+	"github.com/prometheus/client_golang/prometheus"
+
 	_ "hotelService/docs"
 	"hotelService/internal/config"
 	"hotelService/internal/db"
 	"hotelService/internal/handler"
 	"hotelService/internal/httpserver"
 	"hotelService/internal/kafka"
+	"hotelService/internal/metrics"
 	"hotelService/internal/repository"
 	"hotelService/internal/service"
 )
@@ -19,7 +22,7 @@ const configPathEnv = "APP_CONFIG_PATH"
 
 // @title Hotel Booking API
 // @version 1.0
-// @description API for managing hotel guests and rooms.
+// @description API for managing hotel guests, rooms and bookings.
 // @host localhost:8080
 // @BasePath /
 func main() {
@@ -48,8 +51,19 @@ func main() {
 	roomRepository := repository.NewRoomRepository(postgres)
 	roomService := service.NewRoomService(roomRepository, kafkaProducer)
 	roomHandler := handler.NewRoomHandler(roomService)
+	bookingRepository := repository.NewBookingRepository(postgres)
+	bookingMetrics := metrics.NewBookingMetrics(prometheus.DefaultRegisterer)
+	metrics.RegisterOccupancyGauge(prometheus.DefaultRegisterer, bookingRepository, roomRepository)
+	bookingService := service.NewBookingService(
+		bookingRepository,
+		guestRepository,
+		roomRepository,
+		kafkaProducer,
+		bookingMetrics,
+	)
+	bookingHandler := handler.NewBookingHandler(bookingService)
 
-	router := httpserver.NewRouter(cfg, guestHandler, roomHandler)
+	router := httpserver.NewRouter(cfg, guestHandler, roomHandler, bookingHandler)
 
 	log.Printf("starting %s on %s", cfg.App.Name, cfg.HTTPAddress())
 	if err := router.Run(cfg.HTTPAddress()); err != nil {

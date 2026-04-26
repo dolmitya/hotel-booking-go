@@ -17,15 +17,20 @@ type GuestEventPublisher interface {
 	PublishGuestEvent(ctx context.Context, guestEvent event.GuestEvent) error
 }
 
+type BookingEventPublisher interface {
+	PublishBookingEvent(ctx context.Context, bookingEvent event.BookingEvent) error
+}
+
 type RoomEventPublisher interface {
 	PublishRoomEvent(ctx context.Context, roomEvent event.RoomEvent) error
 }
 
 type Producer struct {
-	brokers     []string
-	topics      config.KafkaTopicsConfig
-	guestWriter *kafka.Writer
-	roomWriter  *kafka.Writer
+	brokers       []string
+	topics        config.KafkaTopicsConfig
+	guestWriter   *kafka.Writer
+	bookingWriter *kafka.Writer
+	roomWriter    *kafka.Writer
 }
 
 func NewProducer(cfg config.KafkaConfig) *Producer {
@@ -35,6 +40,12 @@ func NewProducer(cfg config.KafkaConfig) *Producer {
 		guestWriter: &kafka.Writer{
 			Addr:         kafka.TCP(cfg.BootstrapServers...),
 			Topic:        cfg.Topics.GuestEvents,
+			RequiredAcks: kafka.RequireAll,
+			Balancer:     &kafka.LeastBytes{},
+		},
+		bookingWriter: &kafka.Writer{
+			Addr:         kafka.TCP(cfg.BootstrapServers...),
+			Topic:        cfg.Topics.BookingEvents,
 			RequiredAcks: kafka.RequireAll,
 			Balancer:     &kafka.LeastBytes{},
 		},
@@ -118,6 +129,26 @@ func (p *Producer) PublishGuestEvent(ctx context.Context, guestEvent event.Guest
 	return nil
 }
 
+func (p *Producer) PublishBookingEvent(ctx context.Context, bookingEvent event.BookingEvent) error {
+	if p == nil || p.bookingWriter == nil {
+		return nil
+	}
+
+	payload, err := json.Marshal(bookingEvent)
+	if err != nil {
+		return fmt.Errorf("marshal booking event: %w", err)
+	}
+
+	if err := p.bookingWriter.WriteMessages(ctx, kafka.Message{
+		Key:   []byte(bookingEvent.BookingID.String()),
+		Value: payload,
+	}); err != nil {
+		return fmt.Errorf("write booking event: %w", err)
+	}
+
+	return nil
+}
+
 func (p *Producer) PublishRoomEvent(ctx context.Context, roomEvent event.RoomEvent) error {
 	if p == nil || p.roomWriter == nil {
 		return nil
@@ -145,6 +176,12 @@ func (p *Producer) Close() error {
 
 	if p.guestWriter != nil {
 		if err := p.guestWriter.Close(); err != nil {
+			return err
+		}
+	}
+
+	if p.bookingWriter != nil {
+		if err := p.bookingWriter.Close(); err != nil {
 			return err
 		}
 	}

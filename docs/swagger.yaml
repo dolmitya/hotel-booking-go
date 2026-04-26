@@ -12,6 +12,48 @@ definitions:
         example: Room deleted successfully
         type: string
     type: object
+  booking.Request:
+    properties:
+      endTime:
+        example: "2026-03-04T11:00:00Z"
+        type: string
+      guestIds:
+        example:
+        - 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        items:
+          type: string
+        minItems: 1
+        type: array
+      roomId:
+        example: 9a6c1f90-4d3b-4e7c-8e8a-1f23a1e7a123
+        type: string
+      startTime:
+        example: "2026-03-02T10:00:00Z"
+        type: string
+    required:
+    - endTime
+    - guestIds
+    - roomId
+    - startTime
+    type: object
+  booking.Response:
+    properties:
+      endTime:
+        example: "2026-03-04T11:00:00Z"
+        type: string
+      guests:
+        items:
+          $ref: '#/definitions/guest.Response'
+        type: array
+      id:
+        example: 9a6c1f90-4d3b-4e7c-8e8a-1f23a1e7a123
+        type: string
+      room:
+        $ref: '#/definitions/room.Response'
+      startTime:
+        example: "2026-03-02T10:00:00Z"
+        type: string
+    type: object
   guest.Request:
     properties:
       birthDate:
@@ -90,10 +132,179 @@ definitions:
 host: localhost:8080
 info:
   contact: {}
-  description: API for managing hotel guests and rooms.
+  description: API for managing hotel guests, rooms and bookings.
   title: Hotel Booking API
   version: "1.0"
 paths:
+  /bookings:
+    post:
+      consumes:
+      - application/json
+      description: Creates booking and links guests to room
+      parameters:
+      - description: Booking payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/booking.Request'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/booking.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Create booking
+      tags:
+      - bookings
+  /bookings/{id}:
+    delete:
+      description: Deletes booking and linked booking_guest rows
+      parameters:
+      - description: Booking UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Delete booking
+      tags:
+      - bookings
+    get:
+      description: Returns booking with room and guests
+      parameters:
+      - description: Booking UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/booking.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get booking by ID
+      tags:
+      - bookings
+    put:
+      consumes:
+      - application/json
+      description: Updates booking room, guests and time range
+      parameters:
+      - description: Booking UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Booking payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/booking.Request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/booking.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Update booking
+      tags:
+      - bookings
+  /bookings/available-rooms:
+    get:
+      description: Returns rooms available in requested time range
+      parameters:
+      - description: Start time RFC3339
+        example: "2026-04-26T10:00:00Z"
+        in: query
+        name: start
+        required: true
+        type: string
+      - description: End time RFC3339
+        example: "2026-04-26T12:00:00Z"
+        in: query
+        name: end
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/room.Response'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get available rooms
+      tags:
+      - bookings
   /guests:
     post:
       consumes:
