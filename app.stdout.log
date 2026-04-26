@@ -1,0 +1,18 @@
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /health                   --> hotelService/internal/httpserver.NewRouter.func1 (3 handlers)
+[GIN-debug] GET    /swagger/*any             --> github.com/swaggo/gin-swagger.CustomWrapHandler.func1 (3 handlers)
+[GIN-debug] GET    /guests/:id               --> hotelService/internal/handler.(*GuestHandler).getByID-fm (3 handlers)
+[GIN-debug] POST   /guests                   --> hotelService/internal/handler.(*GuestHandler).create-fm (3 handlers)
+[GIN-debug] PUT    /guests/:id               --> hotelService/internal/handler.(*GuestHandler).update-fm (3 handlers)
+[GIN-debug] GET    /rooms/:id                --> hotelService/internal/handler.(*RoomHandler).getByID-fm (3 handlers)
+[GIN-debug] POST   /rooms                    --> hotelService/internal/handler.(*RoomHandler).create-fm (3 handlers)
+[GIN-debug] PUT    /rooms/:id                --> hotelService/internal/handler.(*RoomHandler).update-fm (3 handlers)
+[GIN-debug] DELETE /rooms/:id                --> hotelService/internal/handler.(*RoomHandler).delete-fm (3 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://github.com/gin-gonic/gin/blob/master/docs/doc.md#dont-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on 0.0.0.0:8080
+[GIN] 2026/04/25 - 21:00:34 | 200 |       0s |       127.0.0.1 | GET      "/health"
+[GIN] 2026/04/25 - 21:00:35 | 201 |    1.02s |       127.0.0.1 | POST     "/rooms"

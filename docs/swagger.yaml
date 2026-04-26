@@ -1,0 +1,325 @@
+basePath: /
+definitions:
+  api.ErrorResponse:
+    properties:
+      error:
+        example: resource not found
+        type: string
+    type: object
+  api.MessageResponse:
+    properties:
+      message:
+        example: Room deleted successfully
+        type: string
+    type: object
+  guest.Request:
+    properties:
+      birthDate:
+        example: "1990-05-12"
+        type: string
+      firstName:
+        example: Ivan
+        type: string
+      lastName:
+        example: Ivanov
+        type: string
+      middleName:
+        example: Ivanovich
+        type: string
+      phoneNumber:
+        example: "+79991234567"
+        type: string
+    required:
+    - birthDate
+    - firstName
+    - lastName
+    - phoneNumber
+    type: object
+  guest.Response:
+    properties:
+      birthDate:
+        example: "1990-05-12"
+        type: string
+      firstName:
+        example: Ivan
+        type: string
+      id:
+        example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        type: string
+      lastName:
+        example: Ivanov
+        type: string
+      middleName:
+        example: Ivanovich
+        type: string
+      phoneNumber:
+        example: "+79991234567"
+        type: string
+    type: object
+  room.Request:
+    properties:
+      capacity:
+        example: 2
+        minimum: 1
+        type: integer
+      floor:
+        example: 3
+        minimum: 0
+        type: integer
+      number:
+        example: "305"
+        type: string
+    required:
+    - number
+    type: object
+  room.Response:
+    properties:
+      capacity:
+        example: 2
+        type: integer
+      floor:
+        example: 3
+        type: integer
+      id:
+        example: 9a6c1f90-4d3b-4e7c-8e8a-1f23a1e7a123
+        type: string
+      number:
+        example: "305"
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API for managing hotel guests and rooms.
+  title: Hotel Booking API
+  version: "1.0"
+paths:
+  /guests:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new guest
+      parameters:
+      - description: Guest payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/guest.Request'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/guest.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Create guest
+      tags:
+      - guests
+  /guests/{id}:
+    get:
+      description: Returns guest data by unique identifier
+      parameters:
+      - description: Guest UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/guest.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get guest by ID
+      tags:
+      - guests
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing guest
+      parameters:
+      - description: Guest UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Guest payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/guest.Request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/guest.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Update guest
+      tags:
+      - guests
+  /rooms:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new room
+      parameters:
+      - description: Room payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/room.Request'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/room.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Create room
+      tags:
+      - rooms
+  /rooms/{id}:
+    delete:
+      description: Deletes a room by unique identifier
+      parameters:
+      - description: Room UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Delete room
+      tags:
+      - rooms
+    get:
+      description: Returns room data by unique identifier
+      parameters:
+      - description: Room UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/room.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Get room by ID
+      tags:
+      - rooms
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing room
+      parameters:
+      - description: Room UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Room payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/room.Request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/room.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Update room
+      tags:
+      - rooms
+swagger: "2.0"
