@@ -17,11 +17,11 @@ import (
 )
 
 type RoomService struct {
-	repo      *repository.RoomRepository
+	repo      roomRepository
 	publisher kafka.RoomEventPublisher
 }
 
-func NewRoomService(repo *repository.RoomRepository, publisher kafka.RoomEventPublisher) *RoomService {
+func NewRoomService(repo roomRepository, publisher kafka.RoomEventPublisher) *RoomService {
 	return &RoomService{
 		repo:      repo,
 		publisher: publisher,

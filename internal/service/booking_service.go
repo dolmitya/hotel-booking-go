@@ -20,17 +20,17 @@ import (
 )
 
 type BookingService struct {
-	bookingRepo *repository.BookingRepository
-	guestRepo   *repository.GuestRepository
-	roomRepo    *repository.RoomRepository
+	bookingRepo bookingRepository
+	guestRepo   bookingGuestRepository
+	roomRepo    bookingRoomRepository
 	publisher   kafka.BookingEventPublisher
 	metrics     *metrics.BookingMetrics
 }
 
 func NewBookingService(
-	bookingRepo *repository.BookingRepository,
-	guestRepo *repository.GuestRepository,
-	roomRepo *repository.RoomRepository,
+	bookingRepo bookingRepository,
+	guestRepo bookingGuestRepository,
+	roomRepo bookingRoomRepository,
 	publisher kafka.BookingEventPublisher,
 	bookingMetrics *metrics.BookingMetrics,
 ) *BookingService {

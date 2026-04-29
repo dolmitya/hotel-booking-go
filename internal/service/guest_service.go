@@ -19,11 +19,11 @@ import (
 const guestBirthDateLayout = "2006-01-02"
 
 type GuestService struct {
-	repo      *repository.GuestRepository
+	repo      guestRepository
 	publisher kafka.GuestEventPublisher
 }
 
-func NewGuestService(repo *repository.GuestRepository, publisher kafka.GuestEventPublisher) *GuestService {
+func NewGuestService(repo guestRepository, publisher kafka.GuestEventPublisher) *GuestService {
 	return &GuestService{
 		repo:      repo,
 		publisher: publisher,
